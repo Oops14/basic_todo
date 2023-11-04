@@ -86,6 +86,22 @@ body {
     margin-top: 20px;
 }
 
+.complited {
+    background-color: #ac000082;
+}
+
+.complited h3 {
+    text-decoration: line-through;
+    color: grey;
+}
+
+.complited .btn,
+.complited .btn-checkbox {
+    opacity: 1;
+    visibility: visible;
+    background-color: grey;
+}
+
 .todo-item:hover .btn,
 .todo-item:hover .btn-checkbox {
     opacity: 1;
