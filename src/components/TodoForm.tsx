@@ -14,7 +14,6 @@ export const TodoForm = (props: TodoItemPropsType) => {
                     value={todo}
                     onChange={(e) => {
                         e.preventDefault();
-
                         setTodo(e.target.value);
                     }}
                     type="text"
