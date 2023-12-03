@@ -85,6 +85,21 @@ body {
     margin-top: 20px;
 }
 
+.todo-item-edited {
+    padding: 25px;
+}
+
+.todo-item-edited input {
+    font-size: 16px;
+    width: 100%;
+    margin-right: 10px;
+}
+
+.edited-form {
+    display: flex;
+    flex-grow: 1;
+}
+
 .complited {
     background-color: #ac000082;
 }
