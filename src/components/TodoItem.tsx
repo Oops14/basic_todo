@@ -15,29 +15,30 @@ type TodoItemPropsType = {
 export const TodoItem = (props: TodoItemPropsType) => {
     const [updatedTitle, setUpdatedTitle] = useState('');
 
-    // Remove element func.
+    // Send id to the remove func.
     const removeElement = () => {
         props.deleteEl(props.id);
     };
 
-    // Checked input func.
+    // Send event and id to the checked func.
     const setChecked = (e: ChangeEvent<HTMLInputElement>) => {
         props.isChecked(e, props.id);
     };
 
+    // Send id to the edit func.
     const editTodoItem = () => {
         props.editTodo(props.id);
     };
 
+    const updateText = (e: ChangeEvent<HTMLInputElement>) => {
+        e.preventDefault();
+        setUpdatedTitle(e.currentTarget.value);
+    }
+
     return props.editedItem ? (
         <div  className={"todo-item todo-item-edited"}>
             <form className="edited-form" action="#">
-                <input type="text" placeholder={props.todoTitle} value={updatedTitle} onChange={(e) => {
-                    e.preventDefault();
-
-                    console.log(e.currentTarget.value);
-                    setUpdatedTitle(e.currentTarget.value);
-                }} />
+                <input type="text" placeholder={props.todoTitle} value={updatedTitle} onChange={updateText} />
             </form>
 
             <div>
