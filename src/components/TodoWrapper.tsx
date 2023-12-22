@@ -55,6 +55,7 @@ export const TodoWrapper = () => {
         if (checkedTodo) {
             checkedTodo.isComplited = check;
             setTodoItem([...todoItem]);
+            localStorage.setItem("add_todo", JSON.stringify(todoItem));
         }
     };
 
@@ -63,6 +64,7 @@ export const TodoWrapper = () => {
         let edited = todoItem.map((item) =>
             item.id === id ? { ...item, isEdited: editedItem } : item
         );
+
         setTodoItem(edited);
     };
 
@@ -73,7 +75,9 @@ export const TodoWrapper = () => {
                 ? { ...item, task: newTitle, isEdited: !editedItem }
                 : item
         );
+
         setTodoItem(updated);
+        localStorage.setItem("add_todo", JSON.stringify(updated));
     };
 
     return (
