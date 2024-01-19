@@ -1,4 +1,10 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, {
+    ChangeEvent,
+    Reducer,
+    useEffect,
+    useReducer,
+    useState,
+} from "react";
 import { TodoForm } from "./TodoForm";
 import { TodoItem } from "./TodoItem";
 import { v4 as uuidv4 } from "uuid";
@@ -10,81 +16,105 @@ type TodoItemType = {
     isEdited: boolean;
 };
 
-export const TodoWrapper = () => {
-    const [todoItem, setTodoItem] = useState<Array<TodoItemType>>([
-        { id: uuidv4(), task: "task 1", isComplited: false, isEdited: false },
-        { id: uuidv4(), task: "task 2", isComplited: false, isEdited: false },
-    ]);
-
-    const [editedItem, setEditedItem] = useState<boolean>(true);
-
-    useEffect(() => {
-        let localTodoItems = localStorage.getItem("add_todo");
-
-        if (localTodoItems) {
-            let newValue = JSON.parse(localTodoItems);
-            setTodoItem(newValue);
+function reducer(state: any, action: any) {
+    switch (action.type) {
+        case "ADD_TODO": {
+            const newTodoItem = [
+                ...state,
+                {
+                    id: uuidv4(),
+                    task: action.payload.todo,
+                    isComplited: false,
+                    isEdited: false,
+                },
+            ];
+            return newTodoItem;
         }
-    }, []);
+        case "REMOVE_TODO": {
+            let filteredItem = state.filter(
+                (todo: TodoItemType) => todo.id !== action.payload.id
+            );
+            return filteredItem;
+        }
+        case "CHANGE_STATUS": {
+            let checkedTodo = state.map((item: any) =>
+                item.id === action.payload.id
+                    ? { ...item, isComplited: action.payload.check }
+                    : item
+            );
+            return checkedTodo;
+        }
+        case "EDIT_TODO": {
+            let edited = state.map((item: any) =>
+                item.id === action.payload.id
+                    ? { ...item, isEdited: action.payload.editedItem }
+                    : item
+            );
+            return edited;
+        }
+        case "UPDATE_TODO": {
+            let updated = state.map((item: any) =>
+                item.id === action.payload.id
+                    ? {
+                          ...item,
+                          task: action.payload.newTitle,
+                          isEdited: !action.payload.editedItem,
+                      }
+                    : item
+            );
+            return updated;
+        }
+        default:
+            return state;
+    }
+}
+
+const initialState: Array<TodoItemType> = [
+    { id: uuidv4(), task: "task 1", isComplited: false, isEdited: false },
+    { id: uuidv4(), task: "task 2", isComplited: false, isEdited: false },
+];
+
+export const TodoWrapper = () => {
+    const [todoItem, dispatch] = useReducer<Reducer<any, any>>(
+        reducer,
+        initialState
+    );
+    const [editedItem, setEditedItem] = useState<boolean>(true);
 
     // Add todo item to the list.
     const addTodo = (todo: string) => {
-        const newTodoItem = [
-            ...todoItem,
-            { id: uuidv4(), task: todo, isComplited: false, isEdited: false },
-        ];
-
-        setTodoItem(newTodoItem);
-        localStorage.setItem("add_todo", JSON.stringify(newTodoItem));
+        dispatch({ type: "ADD_TODO", payload: { todo } });
     };
 
     // Remove todo item.
     const removeElement = (id: string) => {
-        let filteredItem = todoItem.filter(
-            (todo: TodoItemType) => todo.id !== id
-        );
-        setTodoItem(filteredItem);
-        localStorage.setItem("add_todo", JSON.stringify(filteredItem));
+        dispatch({ type: "REMOVE_TODO", payload: { id } });
     };
 
     // Set input as done.
     const isChecked = (e: ChangeEvent<HTMLInputElement>, id: string) => {
         let check = e.currentTarget.checked;
-        let checkedTodo = todoItem.find((item) => item.id === id);
-
-        if (checkedTodo) {
-            checkedTodo.isComplited = check;
-            setTodoItem([...todoItem]);
-            localStorage.setItem("add_todo", JSON.stringify(todoItem));
-        }
+        dispatch({ type: "CHANGE_STATUS", payload: { check, id } });
     };
 
     // Edit func.
     const editTodo = (id: string) => {
-        let edited = todoItem.map((item) =>
-            item.id === id ? { ...item, isEdited: editedItem } : item
-        );
-
-        setTodoItem(edited);
+        dispatch({ type: "EDIT_TODO", payload: { id, editedItem } });
     };
 
     // Update todo after editing.
     const updateTodo = (id: string, newTitle: any) => {
-        let updated = todoItem.map((item) =>
-            item.id === id
-                ? { ...item, task: newTitle, isEdited: !editedItem }
-                : item
-        );
-
-        setTodoItem(updated);
-        localStorage.setItem("add_todo", JSON.stringify(updated));
+        dispatch({
+            type: "UPDATE_TODO",
+            payload: { id, newTitle, editedItem },
+        });
     };
 
     return (
         <div className={"todo-wrapper"}>
             <TodoForm addTodo={addTodo} />
 
-            {todoItem.map((item) => {
+            {todoItem.map((item: any) => {
                 return (
                     <TodoItem
                         todoTitle={item.task}
